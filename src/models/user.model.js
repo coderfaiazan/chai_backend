@@ -1,10 +1,10 @@
 import mongoose, { Schema } from "mongoose";
-import  Jwt from "jsonwebtoken";
+import  jwt from "jsonwebtoken";
 import bcrypt, { compare } from "bcrypt"
-const userSchema = Schema(
+const userSchema = new Schema(
     {
    username:{
-    type:String,
+    type: String,
     required: true,
     unique:true,
     lowercase:true,
@@ -12,7 +12,7 @@ const userSchema = Schema(
     index:true
    },
    email:{
-    type:String,
+    type: String,
     required: true,
     unique:true,
     lowercase:true,
@@ -20,16 +20,16 @@ const userSchema = Schema(
     
    },
    fullname:{
-    type:String,
+    type: String,
     required: true,
     trim:true,
     index:true
    },
    avatar:{
     type:String,// cloudnary url
-    required: true,
+    required: false,
    },
-   coverimage:{
+   coverImage:{
     type:String,// cloudnary url
    },
    watchhistory:[
@@ -40,11 +40,11 @@ const userSchema = Schema(
     }
    ],
    password:{
-     type:String,
+     type: String,
      required:[true, 'Password is required']
    },
    rereshToken:{
-    type: string
+    type: String
    }
    
 },
@@ -56,7 +56,7 @@ const userSchema = Schema(
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) 
     return next();
-    this.password = bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password, 10)
     next();
 
 })
@@ -78,7 +78,7 @@ userSchema.methods.generateAccessToken = function(){
      )
 }
 userSchema.methods.generateRefreshToken = function(){
-    return Jwt.sign(
+    return jwt.sign(
        {
         _id:this._id,
     },
